@@ -1,5 +1,7 @@
 # pet-helper-message-service
 
+[Точка входа в приложение](https://github.com/vitmvit/pet-helper-api-gateway-service)
+
 Данный микросервис предоставляет функционал для работы с сообщениями и чатами.
 
 ## ChatController (8084/api/v1/chats)
