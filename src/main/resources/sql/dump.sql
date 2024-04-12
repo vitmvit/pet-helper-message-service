@@ -3,41 +3,6 @@
 \connect
 "messages";
 
-DROP TABLE IF EXISTS "chat";
-DROP SEQUENCE IF EXISTS chat_id_seq;
-CREATE SEQUENCE chat_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
-
-CREATE TABLE "public"."chat"
-(
-    "create_date"  timestamp(6),
-    "id"           bigint DEFAULT nextval('chat_id_seq') NOT NULL,
-    "update_date"  timestamp(6),
-    "status"       character varying(255),
-    "support_name" character varying(255),
-    "user_name"    character varying(255),
-    CONSTRAINT "chat_pkey" PRIMARY KEY ("id")
-) WITH (oids = false);
-
-INSERT INTO "chat" ("create_date", "id", "update_date", "status", "support_name", "user_name")
-VALUES ('2024-04-01 12:39:51.063604', 11, '2024-04-05 09:51:39.634095', 'CLOSED', 'support1@mail.com',
-        'user1@mail.com'),
-       ('2024-04-01 12:39:50.366266', 6, '2024-04-05 09:56:44.146907', 'OPEN', 'support1@mail.com', 'user2@mail.com'),
-       ('2024-04-05 21:55:42.548966', 12, '2024-04-05 22:00:38.168626', 'OPEN', 'support1@mail.com', 'user1@mail.com'),
-       ('2024-04-01 12:38:46.047585', 3, '2024-04-08 22:28:41.41466', 'CLOSED', 'support1@mail.com', 'user3@mail.com'),
-       ('2024-04-08 22:42:27.543635', 14, '2024-04-08 22:42:59.001436', 'OPEN', 'support1@mail.com', 'user3@mail.com'),
-       ('2024-04-01 12:39:49.523781', 5, '2024-04-08 23:58:26.133137', 'CLOSED', 'support1@mail.com', 'user2@mail.com'),
-       ('2024-04-02 22:32:24.410807', 9, '2024-04-09 01:11:12.636676', 'OPEN', 'support1@mail.com', 'user2@mail.com'),
-       ('2024-04-11 00:00:05.720069', 17, '2024-04-11 00:00:05.720084', 'FREE', '', 'user1@mail.com'),
-       ('2024-04-11 00:00:11.035334', 18, '2024-04-11 00:00:11.035347', 'FREE', '', 'user1@mail.com'),
-       ('2024-04-11 00:08:02.955369', 19, '2024-04-11 00:08:02.955434', 'FREE', '', 'user1@mail.com'),
-       ('2024-04-01 12:39:51.063604', 7, '2024-04-01 14:47:52.539101', 'OPEN', 'support2@mail.com', 'user1@mail.com'),
-       ('2024-04-10 23:58:50.798098', 15, '2024-04-11 01:58:19.792332', 'OPEN', 'support1@mail.com', 'user1@mail.com'),
-       ('2024-04-10 23:59:55.302054', 16, '2024-04-11 01:58:23.153118', 'OPEN', 'support1@mail.com', 'user1@mail.com'),
-       ('2024-04-12 11:59:56.771508', 20, '2024-04-12 11:59:56.77153', 'FREE', '', 'user1@mail.com'),
-       ('2024-04-01 12:38:46.849295', 4, '2024-04-03 00:21:45.15783', 'OPEN', 'support2@mail.com', 'user1@mail.com'),
-       ('2024-04-01 12:38:44.227123', 2, '2024-04-03 22:19:57.490089', 'CLOSED', 'support2@mail.com', 'user1@mail.com'),
-       ('2024-04-01 12:38:37.788389', 1, '2024-04-05 01:44:34.043569', 'CLOSED', 'support1@mail.com', 'user1@mail.com');
-
 DROP TABLE IF EXISTS "message";
 DROP SEQUENCE IF EXISTS message_id_seq;
 CREATE SEQUENCE message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
@@ -65,6 +30,12 @@ VALUES (3, '2024-04-08 21:30:03.566122', 50, 'In auctor at mi nec imperdiet', 'u
        (6, '2024-04-04 20:30:33.27718', 37, 'Donec vel enim ornare', 'support1@mail.com'),
        (6, '2024-04-04 20:30:36.961346', 38, 'placerat urna ac', 'support1@mail.com'),
        (12, '2024-04-05 22:02:00.800183', 39, 'ornare mauris', 'user1@mail.com'),
+       (17, '2024-04-13 01:02:30.526222', 79,
+        'Pellentesque lacinia erat sit amet sapien eleifend, sed placerat ipsum scelerisque. Fusce id augue nisi. Maecenas ac auctor ipsum, eu elementum dui. Pellentesque dolor tortor, eleifend quis tellus ac, faucibus vestibulum risus. ',
+        'user1@mail.com'),
+       (17, '2024-04-13 01:02:55.129097', 80,
+        'Pellentesque lacinia erat sit amet sapien eleifend, sed placerat ipsum scelerisque. Fusce id augue nisi. Maecenas ac auctor ipsum, eu elementum dui. Pellentesque dolor tortor, eleifend quis tellus ac, faucibus vestibulum risus. ',
+        'support1@mail.com'),
        (12, '2024-04-06 00:56:07.246225', 42, 'Duis et lectus dignissim', 'support1@mail.com'),
        (12, '2024-04-06 00:56:11.033316', 43, 'efficitur velit ac, accumsan elit', 'support1@mail.com'),
        (3, '2024-04-08 22:10:56.868287', 51, 'Pellentesque gravida nec arcu maximus tempus', 'user3@mail.com'),
@@ -74,8 +45,6 @@ VALUES (3, '2024-04-08 21:30:03.566122', 50, 'In auctor at mi nec imperdiet', 'u
        (3, '2024-04-08 22:27:00.961773', 53, 'Vivamus auctor fermentum vulputate', 'support1@mail.com'),
        (3, '2024-04-08 22:28:36.600161', 54, 'Proin purus erat, porttitor et pretium eu, pretium nec est.',
         'user3@mail.com'),
-       (12, '2024-04-09 15:20:51.584546', 63, 'jhytgjhghg', 'support1@mail.com'),
-       (12, '2024-04-09 15:21:11.951695', 64, 'efrefrefe', 'support1@mail.com'),
        (3, '2024-04-08 21:07:04.421661', 44, 'Ut tellus dolor, mollis id suscipit ut', 'support1@mail.com'),
        (3, '2024-04-08 21:07:09.573314', 45, 'accumsan id dolor', 'support1@mail.com'),
        (20, '2024-04-12 15:54:56.204855', 74, 'Donec id pellentesque purus.', 'user1@mail.com'),
@@ -119,8 +88,10 @@ VALUES (3, '2024-04-08 21:30:03.566122', 50, 'In auctor at mi nec imperdiet', 'u
        (15, '2024-04-12 11:55:57.16858', 71, 'Quisque quis pretium nulla', 'user1@mail.com'),
        (15, '2024-04-12 11:55:59.768014', 72, 'Etiam interdum facilisis ultrices.', 'user1@mail.com'),
        (15, '2024-04-12 11:56:02.010097', 73, 'Nam maximus mi nisi, viverra volutpat velit maximus sed',
-        'user1@mail.com');
+        'user1@mail.com'),
+       (17, '2024-04-13 01:06:21.987384', 82, 'Morbi est quam, ultrices aliquet lobortis at, tristique et nibh.',
+        'support1@mail.com');
 
 ALTER TABLE ONLY "public"."message" ADD CONSTRAINT "fk_chat_message_id_to_id" FOREIGN KEY (chat_id) REFERENCES chat(id) NOT DEFERRABLE;
 
--- 2024-04-12 21:35:43.537498+00
+-- 2024-04-12 22:06:51.503546+00
