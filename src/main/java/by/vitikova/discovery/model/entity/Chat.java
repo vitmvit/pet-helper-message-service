@@ -1,6 +1,7 @@
 package by.vitikova.discovery.model.entity;
 
 import by.vitikova.discovery.constant.ChatStatus;
+import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.listener.ChatListener;
 import by.vitikova.discovery.model.entity.parent.LogModel;
 import jakarta.persistence.*;
@@ -31,6 +32,9 @@ public class Chat extends LogModel {
 
     @Enumerated(EnumType.STRING)
     private ChatStatus status;
+
+    @Enumerated(EnumType.STRING)
+    private ChatType type;
 
     @OneToMany(mappedBy = "chat", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private List<Message> messageList;

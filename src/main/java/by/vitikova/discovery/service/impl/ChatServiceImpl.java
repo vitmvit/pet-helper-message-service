@@ -2,6 +2,7 @@ package by.vitikova.discovery.service.impl;
 
 import by.vitikova.discovery.ChatDto;
 import by.vitikova.discovery.constant.ChatStatus;
+import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.converter.ChatConverter;
 import by.vitikova.discovery.create.ChatCreateDto;
 import by.vitikova.discovery.exception.ResourceNotFoundException;
@@ -110,11 +111,26 @@ public class ChatServiceImpl implements ChatService {
         return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ChatDto> findChatsByType(ChatType type) {
+        logger.info("ChatService: find chats by type: " + type.getType());
+        var chatList = chatRepository.findChatsByType(type);
+        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
+
+    }
+
+    @Override
+    public List<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status) {
+        logger.info("ChatService: find chats by type: " + type.getType() + ", status: " + status.getStatus());
+        var chatList = chatRepository.findChatsByTypeAndStatus(type, status);
+        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
+    }
+
     /**
      * Находит список чатов, связанных с указанными именами поддержки и пользователя.
      *
      * @param supportName имя поддержки
-     * @param userName имя пользователя
+     * @param userName    имя пользователя
      * @return список объектов типа ChatDto, содержащих информацию о чатах
      */
     @Override
@@ -165,10 +181,18 @@ public class ChatServiceImpl implements ChatService {
         return chatConverter.convert(chatRepository.save(chat));
     }
 
+//    @Override
+//    public ChatDto updateFlag(Long id) {
+//        logger.info("ChatService: update flag by chatId: " + id);
+//        var chat = chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
+//        chat.setViewed(!chat.isViewed());
+//        return chatConverter.convert(chatRepository.save(chat));
+//    }
+
     /**
      * Обновляет имя поддержки чата по его идентификатору.
      *
-     * @param id идентификатор чата
+     * @param id    идентификатор чата
      * @param login логин поддержки
      * @return объект типа ChatDto, содержащий информацию о чате с обновленным именем поддержки
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден

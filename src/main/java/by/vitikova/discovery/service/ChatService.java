@@ -2,6 +2,7 @@ package by.vitikova.discovery.service;
 
 import by.vitikova.discovery.ChatDto;
 import by.vitikova.discovery.constant.ChatStatus;
+import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.create.ChatCreateDto;
 
 import java.util.List;
@@ -20,6 +21,10 @@ public interface ChatService {
 
     List<ChatDto> findChatsByStatus(ChatStatus status);
 
+    List<ChatDto> findChatsByType(ChatType type);
+
+    List<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status);
+
     List<ChatDto> findChatsBySupportNameAndUserName(String supportName, String userName);
 
     List<ChatDto> findAll();
@@ -27,6 +32,8 @@ public interface ChatService {
     ChatDto create(ChatCreateDto dto);
 
     ChatDto updateStatus(Long id, ChatStatus status);
+
+//    ChatDto updateFlag(Long id);
 
     ChatDto updateSupport(Long id, String login);
 

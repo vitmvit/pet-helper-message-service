@@ -70,6 +70,7 @@ public class MessageServiceImpl implements MessageService {
         logger.info("MessageService: create message in chat wih id: " + dto.getChatId());
         Chat chat = chatRepository.findById(dto.getChatId()).orElseThrow(ResourceNotFoundException::new);
         var message = messageConverter.convert(dto);
+//        chat.setViewed(false);
         message.setChat(chat);
         return messageConverter.convert(messageRepository.save(message));
     }

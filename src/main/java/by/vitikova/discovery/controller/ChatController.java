@@ -3,6 +3,7 @@ package by.vitikova.discovery.controller;
 import by.vitikova.discovery.ChatDto;
 import by.vitikova.discovery.MessageDto;
 import by.vitikova.discovery.constant.ChatStatus;
+import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.create.ChatCreateDto;
 import by.vitikova.discovery.create.MessageCreateDto;
 import by.vitikova.discovery.service.ChatService;
@@ -47,6 +48,20 @@ public class ChatController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(chatService.findChatsByStatus(status));
+    }
+
+    @GetMapping("type/{type}")
+    public ResponseEntity<List<ChatDto>> findChatsByType(@PathVariable("type") ChatType type) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(chatService.findChatsByType(type));
+    }
+
+    @GetMapping("status/{type}/{status}")
+    public ResponseEntity<List<ChatDto>> findChatsByTypeAndStatus(@PathVariable("type") ChatType type, @PathVariable("status") ChatStatus status) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(chatService.findChatsByTypeAndStatus(type, status));
     }
 
     @GetMapping("userName/{name}")
@@ -98,6 +113,13 @@ public class ChatController {
                 .status(HttpStatus.OK)
                 .body(chatService.updateStatus(id, status));
     }
+
+//    @PostMapping("/flag/{id}")
+//    public ResponseEntity<ChatDto> updateFlagChat(@PathVariable("id") Long id) {
+//        return ResponseEntity
+//                .status(HttpStatus.OK)
+//                .body(chatService.updateFlag(id));
+//    }
 
     @PostMapping("/support/{id}/{login}")
     public ResponseEntity<ChatDto> updateSupportChat(@PathVariable("id") Long id,
