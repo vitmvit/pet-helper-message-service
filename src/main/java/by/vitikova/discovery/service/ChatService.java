@@ -33,8 +33,6 @@ public interface ChatService {
 
     ChatDto updateStatus(Long id, ChatStatus status);
 
-//    ChatDto updateFlag(Long id);
-
     ChatDto updateSupport(Long id, String login);
 
     void delete(Long id);

@@ -11,6 +11,8 @@ import by.vitikova.discovery.service.MessageService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -39,6 +41,7 @@ public class MessageServiceImpl implements MessageService {
      * @return объект типа MessageDto, содержащий информацию о сообщении
      * @throws ResourceNotFoundException если сообщение с заданным идентификатором не найдено
      */
+    @Cacheable(value = "message", key = "#id")
     @Override
     public MessageDto findById(Long id) {
         logger.info("MessageService: find message with id: " + id);
@@ -65,12 +68,12 @@ public class MessageServiceImpl implements MessageService {
      * @return объект типа MessageDto, содержащий информацию о созданном сообщении
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
+    @CacheEvict(value = "messages", key = "#dto.chatId")
     @Override
     public MessageDto create(MessageCreateDto dto) {
         logger.info("MessageService: create message in chat wih id: " + dto.getChatId());
         Chat chat = chatRepository.findById(dto.getChatId()).orElseThrow(ResourceNotFoundException::new);
         var message = messageConverter.convert(dto);
-//        chat.setViewed(false);
         message.setChat(chat);
         return messageConverter.convert(messageRepository.save(message));
     }
@@ -80,6 +83,7 @@ public class MessageServiceImpl implements MessageService {
      *
      * @param id идентификатор сообщения
      */
+    @CacheEvict(value = "messages", allEntries = true)
     @Override
     public void delete(Long id) {
         logger.info("MessageService: delete message with id: " + id);

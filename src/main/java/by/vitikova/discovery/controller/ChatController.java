@@ -114,13 +114,6 @@ public class ChatController {
                 .body(chatService.updateStatus(id, status));
     }
 
-//    @PostMapping("/flag/{id}")
-//    public ResponseEntity<ChatDto> updateFlagChat(@PathVariable("id") Long id) {
-//        return ResponseEntity
-//                .status(HttpStatus.OK)
-//                .body(chatService.updateFlag(id));
-//    }
-
     @PostMapping("/support/{id}/{login}")
     public ResponseEntity<ChatDto> updateSupportChat(@PathVariable("id") Long id,
                                                      @PathVariable("login") String login) {

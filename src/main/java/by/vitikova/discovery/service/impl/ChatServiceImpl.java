@@ -13,6 +13,8 @@ import by.vitikova.discovery.util.StringUtils;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -40,6 +42,7 @@ public class ChatServiceImpl implements ChatService {
      * @return объект типа ChatDto, содержащий информацию о чате
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
+    @Cacheable(value = "chat", key = "#id")
     @Override
     public ChatDto findById(Long id) {
         logger.info("ChatService: find chat with id: " + id);
@@ -111,6 +114,12 @@ public class ChatServiceImpl implements ChatService {
         return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
     }
 
+    /**
+     * Метод для поиска чатов по типу.
+     *
+     * @param type Тип чата, по которому необходимо произвести поиск.
+     * @return Список чатов типа {@code ChatDto}, соответствующих указанному типу.
+     */
     @Override
     public List<ChatDto> findChatsByType(ChatType type) {
         logger.info("ChatService: find chats by type: " + type.getType());
@@ -119,6 +128,13 @@ public class ChatServiceImpl implements ChatService {
 
     }
 
+    /**
+     * Метод для поиска чатов по типу и статусу.
+     *
+     * @param type   Тип чата, по которому необходимо произвести поиск.
+     * @param status Статус чата, по которому необходимо произвести поиск.
+     * @return Список чатов типа {@code ChatDto}, соответствующих указанному типу и статусу.
+     */
     @Override
     public List<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status) {
         logger.info("ChatService: find chats by type: " + type.getType() + ", status: " + status.getStatus());
@@ -127,7 +143,7 @@ public class ChatServiceImpl implements ChatService {
     }
 
     /**
-     * Находит список чатов, связанных с указанными именами поддержки и пользователя.
+     * Находит список чатов, связанных с указанными логинами поддержки и пользователя.
      *
      * @param supportName имя поддержки
      * @param userName    имя пользователя
@@ -158,6 +174,7 @@ public class ChatServiceImpl implements ChatService {
      * @param dto данные для создания чата
      * @return объект типа ChatDto, содержащий информацию о созданном чате
      */
+    @CacheEvict(value = "chats", key = "#dto.userName")
     @Override
     public ChatDto create(ChatCreateDto dto) {
         logger.info("ChatService: create chat");
@@ -181,14 +198,6 @@ public class ChatServiceImpl implements ChatService {
         return chatConverter.convert(chatRepository.save(chat));
     }
 
-//    @Override
-//    public ChatDto updateFlag(Long id) {
-//        logger.info("ChatService: update flag by chatId: " + id);
-//        var chat = chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-//        chat.setViewed(!chat.isViewed());
-//        return chatConverter.convert(chatRepository.save(chat));
-//    }
-
     /**
      * Обновляет имя поддержки чата по его идентификатору.
      *
@@ -211,6 +220,7 @@ public class ChatServiceImpl implements ChatService {
      * @param id идентификатор чата
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
+    @CacheEvict(value = "chats", allEntries = true)
     @Override
     public void delete(Long id) {
         logger.info("ChatService: dalete chat with id: " + id);
