@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Audited
 @Entity
 public class Message {
 
@@ -28,6 +30,7 @@ public class Message {
 
     private String senderName;
     private String content;
+    private String uuidPhoto;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

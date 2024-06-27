@@ -129,6 +129,12 @@ public class ChatController {
                 .body(messageService.create(messageCreateDto));
     }
 
+    @DeleteMapping("/users/{login}")
+    public ResponseEntity<Void> deleteChatsByUserName(@PathVariable("login") String login) {
+        chatService.deleteChatsByUserName(login);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteChat(@PathVariable("id") Long id) {
         chatService.delete(id);

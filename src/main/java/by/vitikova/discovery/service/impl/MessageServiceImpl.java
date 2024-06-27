@@ -3,7 +3,9 @@ package by.vitikova.discovery.service.impl;
 import by.vitikova.discovery.MessageDto;
 import by.vitikova.discovery.converter.MessageConverter;
 import by.vitikova.discovery.create.MessageCreateDto;
+import by.vitikova.discovery.exception.EntityNotFoundException;
 import by.vitikova.discovery.exception.ResourceNotFoundException;
+import by.vitikova.discovery.feign.ImageClient;
 import by.vitikova.discovery.model.entity.Chat;
 import by.vitikova.discovery.repository.ChatRepository;
 import by.vitikova.discovery.repository.MessageRepository;
@@ -14,6 +16,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,6 +35,7 @@ public class MessageServiceImpl implements MessageService {
     private static final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
     private MessageRepository messageRepository;
     private ChatRepository chatRepository;
+    private ImageClient imageClient;
     private MessageConverter messageConverter;
 
     /**
@@ -69,6 +73,7 @@ public class MessageServiceImpl implements MessageService {
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
     @CacheEvict(value = "messages", key = "#dto.chatId")
+    @Transactional
     @Override
     public MessageDto create(MessageCreateDto dto) {
         logger.info("MessageService: create message in chat wih id: " + dto.getChatId());
@@ -84,8 +89,13 @@ public class MessageServiceImpl implements MessageService {
      * @param id идентификатор сообщения
      */
     @CacheEvict(value = "messages", allEntries = true)
+    @Transactional
     @Override
     public void delete(Long id) {
+        var message = messageRepository.findById(id).orElseThrow(EntityNotFoundException::new);
+        if (message.getUuidPhoto() != null) {
+            imageClient.removeImage(message.getUuidPhoto());
+        }
         logger.info("MessageService: delete message with id: " + id);
         messageRepository.deleteById(id);
     }

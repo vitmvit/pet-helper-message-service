@@ -6,6 +6,7 @@ import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.converter.ChatConverter;
 import by.vitikova.discovery.create.ChatCreateDto;
 import by.vitikova.discovery.exception.ResourceNotFoundException;
+import by.vitikova.discovery.model.entity.Chat;
 import by.vitikova.discovery.repository.ChatRepository;
 import by.vitikova.discovery.repository.MessageRepository;
 import by.vitikova.discovery.service.ChatService;
@@ -16,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -175,6 +177,7 @@ public class ChatServiceImpl implements ChatService {
      * @return объект типа ChatDto, содержащий информацию о созданном чате
      */
     @CacheEvict(value = "chats", key = "#dto.userName")
+    @Transactional
     @Override
     public ChatDto create(ChatCreateDto dto) {
         logger.info("ChatService: create chat");
@@ -190,6 +193,7 @@ public class ChatServiceImpl implements ChatService {
      * @return объект типа ChatDto, содержащий информацию о чате с обновленным статусом
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
+    @Transactional
     @Override
     public ChatDto updateStatus(Long id, ChatStatus status) {
         logger.info("ChatService: update status by chatId: " + id);
@@ -206,12 +210,22 @@ public class ChatServiceImpl implements ChatService {
      * @return объект типа ChatDto, содержащий информацию о чате с обновленным именем поддержки
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
+    @Transactional
     @Override
     public ChatDto updateSupport(Long id, String login) {
         logger.info("ChatService: update support by chatId: " + id);
         var chat = chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
         chat.setSupportName(login);
         return chatConverter.convert(chatRepository.save(chat));
+    }
+
+    @Transactional
+    @Override
+    public void deleteChatsByUserName(String login) {
+        var chatList = chatRepository.findChatsByUserName(login);
+        for (Chat item : chatList) {
+            delete(item.getId());
+        }
     }
 
     /**
@@ -221,6 +235,7 @@ public class ChatServiceImpl implements ChatService {
      * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
      */
     @CacheEvict(value = "chats", allEntries = true)
+    @Transactional
     @Override
     public void delete(Long id) {
         logger.info("ChatService: dalete chat with id: " + id);

@@ -35,5 +35,7 @@ public interface ChatService {
 
     ChatDto updateSupport(Long id, String login);
 
+    void deleteChatsByUserName(String login);
+
     void delete(Long id);
 }
