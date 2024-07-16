@@ -1,11 +1,8 @@
 package by.vitikova.discovery.model.entity;
 
 import by.vitikova.discovery.constant.RoleName;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.Id;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -62,6 +59,12 @@ public class User implements UserDetails {
         }
         if (this.role == RoleName.SUPPORT) {
             return List.of(new SimpleGrantedAuthority(SUPPORT_ROLE), new SimpleGrantedAuthority(USER_ROLE));
+        }
+        if (this.role == RoleName.VET) {
+            return List.of(new SimpleGrantedAuthority(VET_ROLE), new SimpleGrantedAuthority(USER_ROLE));
+        }
+        if (this.role == RoleName.EDITOR) {
+            return List.of(new SimpleGrantedAuthority(EDITOR_ROLE), new SimpleGrantedAuthority(USER_ROLE));
         }
         return List.of(new SimpleGrantedAuthority(USER_ROLE));
     }

@@ -1,22 +1,22 @@
 package by.vitikova.discovery.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.envers.Audited;
 
 import java.time.LocalDateTime;
 
 /**
  * Сущность Message, представляющая собой сообщение в чате между пользователем и технической поддержкой.
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
+@Getter
+@Setter
 @Entity
+@Builder
+@Audited
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
 
     @Id
@@ -28,6 +28,7 @@ public class Message {
 
     private String senderName;
     private String content;
+    private String uuidPhoto;
 
     @CreationTimestamp
     @Temporal(TemporalType.TIMESTAMP)

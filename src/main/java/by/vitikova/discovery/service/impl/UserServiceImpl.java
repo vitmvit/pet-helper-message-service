@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
     private final UserClient userClient;
-    private static final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
 
     /**
      * Находит пользователя по логину.
@@ -26,10 +26,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto findByLogin(String login) {
         try {
-            logger.info("UserService: find user with login: " + login);
+            logger.info("UserService: find user by login: " + login);
             return userClient.findByLogin(login).getBody();
         } catch (Exception e) {
-            logger.error("UserService: Entity not found exception");
+            logger.error("UserService: Entity not found error");
             throw new EntityNotFoundException();
         }
     }

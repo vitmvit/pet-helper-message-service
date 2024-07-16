@@ -7,6 +7,27 @@ DROP TABLE IF EXISTS "message";
 DROP SEQUENCE IF EXISTS message_id_seq;
 CREATE SEQUENCE message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 CACHE 1;
 
+DROP TABLE IF EXISTS "chat";
+DROP SEQUENCE IF EXISTS chat_id_seq;
+CREATE SEQUENCE chat_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 34 CACHE 1;
+
+CREATE TABLE "public"."chat"
+(
+    "create_date"  timestamp(6),
+    "id"           bigint DEFAULT nextval('chat_id_seq') NOT NULL,
+    "update_date"  timestamp(6),
+    "status"       character varying(255),
+    "support_name" character varying(255),
+    "user_name"    character varying(255),
+    "type"         character varying(255),
+    CONSTRAINT "chat_pkey" PRIMARY KEY ("id")
+) WITH (oids = false);
+
+
+DROP TABLE IF EXISTS "message";
+DROP SEQUENCE IF EXISTS message_id_seq;
+CREATE SEQUENCE message_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 182 CACHE 1;
+
 CREATE TABLE "public"."message"
 (
     "chat_id"     bigint,
@@ -14,8 +35,30 @@ CREATE TABLE "public"."message"
     "id"          bigint DEFAULT nextval('message_id_seq') NOT NULL,
     "content"     character varying(255),
     "sender_name" character varying(255),
+    "uuid_photo"  character varying,
     CONSTRAINT "message_pkey" PRIMARY KEY ("id")
 ) WITH (oids = false);
+
+TRUNCATE "chat";
+INSERT INTO "chat" ("create_date", "id", "update_date", "status", "support_name", "user_name", "type")
+VALUES ('2024-04-11 00:08:02.955369', 3, '2024-05-04 18:42:07.33653', 'OPEN', 'support1@mail.com', 'user3@mail.com',
+        'SUPPORT'),
+       ('2024-05-05 23:51:37.900243', 1, '2024-05-05 23:54:56.244971', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'MEDICAL'),
+       ('2024-05-06 11:56:56.775259', 6, '2024-05-13 12:05:33.84568', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'SUPPORT'),
+       ('2024-05-25 16:00:46.692917', 12, '2024-05-25 16:01:34.054444', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'SUPPORT'),
+       ('2024-05-29 09:06:45.334501', 17, '2024-05-29 10:31:40.941423', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'MEDICAL'),
+       ('2024-05-29 09:06:09.015739', 16, '2024-06-02 18:07:38.124932', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'SUPPORT'),
+       ('2024-06-08 20:10:02.533238', 20, '2024-06-08 20:10:32.867069', 'OPEN', 'support1@mail.com', 'user1@mail.com',
+        'SUPPORT'),
+       ('2024-05-13 12:03:42.238714', 14, '2024-06-10 14:12:47.142519', 'OPEN', null, 'user3@mail.com',
+        'MEDICAL'),
+       ('2024-06-10 14:11:58.119249', 15, '2024-06-10 14:13:59.115577', 'OPEN', 'vet1@mail.com', 'user1@mail.com',
+        'MEDICAL');
 
 INSERT INTO "message" ("chat_id", "create_date", "id", "content", "sender_name")
 VALUES (3, '2024-04-08 21:30:03.566122', 50, 'In auctor at mi nec imperdiet', 'user3@mail.com'),

@@ -3,9 +3,7 @@ package by.vitikova.discovery.converter;
 import by.vitikova.discovery.ChatDto;
 import by.vitikova.discovery.create.ChatCreateDto;
 import by.vitikova.discovery.model.entity.Chat;
-import by.vitikova.discovery.update.ChatUpdateDto;
 import org.mapstruct.Mapper;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.ReportingPolicy;
 
 /**
@@ -29,21 +27,4 @@ public interface ChatConverter {
      * @return преобразованный объект Chat
      */
     Chat convert(ChatCreateDto source);
-
-    /**
-     * Преобразование объекта ChatUpdateDto в объект Chat.
-     *
-     * @param source исходный объект ChatUpdateDto
-     * @return преобразованный объект Chat
-     */
-    Chat convert(ChatUpdateDto source);
-
-    /**
-     * Обновление полей объекта Chat на основе данных из ChatUpdateDto.
-     *
-     * @param chat объект Chat, который нужно обновить
-     * @param dto  объект ChatUpdateDto с обновленными данными
-     * @return обновленный объект Chat
-     */
-    Chat merge(@MappingTarget Chat chat, ChatUpdateDto dto);
 }
