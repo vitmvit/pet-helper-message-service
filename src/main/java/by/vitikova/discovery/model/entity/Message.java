@@ -1,10 +1,7 @@
 package by.vitikova.discovery.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.envers.Audited;
 
@@ -13,12 +10,13 @@ import java.time.LocalDateTime;
 /**
  * Сущность Message, представляющая собой сообщение в чате между пользователем и технической поддержкой.
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
+@Entity
 @Builder
 @Audited
-@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 public class Message {
 
     @Id

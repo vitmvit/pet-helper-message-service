@@ -4,9 +4,23 @@
 
 Данный микросервис предоставляет функционал для работы с сообщениями и чатами.
 
+## Доступ
+
+Роли:
+
+- VET
+- SUPPORT
+- USER
+
 ## Swagger
 
 http://localhost:8084/api/doc/swagger-ui/index.html#/
+
+## Порт
+
+```text
+8084
+```
 
 ## ChatController (8084/api/v1/chats)
 
@@ -60,76 +74,7 @@ Response:
       "content": "content",
       "createDate": "2024-04-02T22:33:18.722023"
     },
-    {
-      "id": 7,
-      "chatId": 3,
-      "senderName": "user3@mail.com",
-      "content": "content",
-      "createDate": "2024-04-02T22:33:19.430088"
-    },
-    {
-      "id": 8,
-      "chatId": 3,
-      "senderName": "user3@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:08:39.622999"
-    },
-    {
-      "id": 9,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:08:57.749837"
-    },
-    {
-      "id": 10,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:19:44.174408"
-    },
-    {
-      "id": 11,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:24:24.215284"
-    },
-    {
-      "id": 12,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:24:29.457451"
-    },
-    {
-      "id": 13,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:29:08.742179"
-    },
-    {
-      "id": 14,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:29:17.659692"
-    },
-    {
-      "id": 15,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:29:21.688996"
-    },
-    {
-      "id": 16,
-      "chatId": 3,
-      "senderName": "support1@mail.com",
-      "content": "content",
-      "createDate": "2024-04-03T21:29:27.078565"
-    }
+    ...
   ],
   "status": "CLOSED",
   "createDate": "2024-04-01T12:38:46.047585",
@@ -176,15 +121,7 @@ Response:
     "createDate": "2024-04-01T12:38:46.849295",
     "updateDate": "2024-04-03T00:21:45.15783"
   },
-  {
-    "id": 2,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "CLOSED",
-    "createDate": "2024-04-01T12:38:44.227123",
-    "updateDate": "2024-04-03T22:19:57.490089"
-  }
+  ...
 ]
 ```
 
@@ -257,24 +194,7 @@ Response:
     "createDate": "2024-04-01T12:39:50.366266",
     "updateDate": "2024-04-05T09:56:44.146907"
   },
-  {
-    "id": 7,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "OPEN",
-    "createDate": "2024-04-01T12:39:51.063604",
-    "updateDate": "2024-04-01T14:47:52.539101"
-  },
-  {
-    "id": 4,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "OPEN",
-    "createDate": "2024-04-01T12:38:46.849295",
-    "updateDate": "2024-04-03T00:21:45.15783"
-  }
+  ...
 ]
 ```
 
@@ -309,76 +229,7 @@ Response:
         "content": "content",
         "createDate": "2024-04-02T22:33:18.722023"
       },
-      {
-        "id": 7,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:19.430088"
-      },
-      {
-        "id": 8,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:39.622999"
-      },
-      {
-        "id": 9,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:57.749837"
-      },
-      {
-        "id": 10,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:19:44.174408"
-      },
-      {
-        "id": 11,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:24.215284"
-      },
-      {
-        "id": 12,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:29.457451"
-      },
-      {
-        "id": 13,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:08.742179"
-      },
-      {
-        "id": 14,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:17.659692"
-      },
-      {
-        "id": 15,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:21.688996"
-      },
-      {
-        "id": 16,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:27.078565"
-      }
+      ...
     ],
     "status": "CLOSED",
     "createDate": "2024-04-01T12:38:46.047585",
@@ -418,76 +269,7 @@ Response:
         "content": "content",
         "createDate": "2024-04-02T22:33:18.722023"
       },
-      {
-        "id": 7,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:19.430088"
-      },
-      {
-        "id": 8,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:39.622999"
-      },
-      {
-        "id": 9,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:57.749837"
-      },
-      {
-        "id": 10,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:19:44.174408"
-      },
-      {
-        "id": 11,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:24.215284"
-      },
-      {
-        "id": 12,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:29.457451"
-      },
-      {
-        "id": 13,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:08.742179"
-      },
-      {
-        "id": 14,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:17.659692"
-      },
-      {
-        "id": 15,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:21.688996"
-      },
-      {
-        "id": 16,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:27.078565"
-      }
+      ...
     ],
     "status": "CLOSED",
     "createDate": "2024-04-01T12:38:46.047585",
@@ -527,76 +309,7 @@ Response:
         "content": "content",
         "createDate": "2024-04-02T22:33:18.722023"
       },
-      {
-        "id": 7,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:19.430088"
-      },
-      {
-        "id": 8,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:39.622999"
-      },
-      {
-        "id": 9,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:57.749837"
-      },
-      {
-        "id": 10,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:19:44.174408"
-      },
-      {
-        "id": 11,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:24.215284"
-      },
-      {
-        "id": 12,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:29.457451"
-      },
-      {
-        "id": 13,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:08.742179"
-      },
-      {
-        "id": 14,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:17.659692"
-      },
-      {
-        "id": 15,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:21.688996"
-      },
-      {
-        "id": 16,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:27.078565"
-      }
+      ...
     ],
     "status": "CLOSED",
     "createDate": "2024-04-01T12:38:46.047585",
@@ -659,48 +372,7 @@ Response:
     "content": "content",
     "createDate": "2024-04-03T21:19:44.174408"
   },
-  {
-    "id": 11,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:24:24.215284"
-  },
-  {
-    "id": 12,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:24:29.457451"
-  },
-  {
-    "id": 13,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:29:08.742179"
-  },
-  {
-    "id": 14,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:29:17.659692"
-  },
-  {
-    "id": 15,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:29:21.688996"
-  },
-  {
-    "id": 16,
-    "chatId": 3,
-    "senderName": "support1@mail.com",
-    "content": "content",
-    "createDate": "2024-04-03T21:29:27.078565"
-  }
+  ...
 ]
 ```
 
@@ -716,24 +388,6 @@ Response:
 
 ```json
 [
-  {
-    "id": 11,
-    "supportName": "support1@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "CLOSED",
-    "createDate": "2024-04-01T12:39:51.063604",
-    "updateDate": "2024-04-05T09:51:39.634095"
-  },
-  {
-    "id": 5,
-    "supportName": "support1@mail.com",
-    "userName": "user2@mail.com",
-    "messageList": [],
-    "status": "OPEN",
-    "createDate": "2024-04-01T12:39:49.523781",
-    "updateDate": "2024-04-05T09:54:10.006558"
-  },
   {
     "id": 6,
     "supportName": "support1@mail.com",
@@ -759,127 +413,6 @@ Response:
     "updateDate": "2024-04-05T09:56:44.146907"
   },
   {
-    "id": 7,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "OPEN",
-    "createDate": "2024-04-01T12:39:51.063604",
-    "updateDate": "2024-04-01T14:47:52.539101"
-  },
-  {
-    "id": 4,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "OPEN",
-    "createDate": "2024-04-01T12:38:46.849295",
-    "updateDate": "2024-04-03T00:21:45.15783"
-  },
-  {
-    "id": 2,
-    "supportName": "support2@mail.com",
-    "userName": "user1@mail.com",
-    "messageList": [],
-    "status": "CLOSED",
-    "createDate": "2024-04-01T12:38:44.227123",
-    "updateDate": "2024-04-03T22:19:57.490089"
-  },
-  {
-    "id": 3,
-    "supportName": "support1@mail.com",
-    "userName": "user3@mail.com",
-    "messageList": [
-      {
-        "id": 5,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:17.920154"
-      },
-      {
-        "id": 6,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:18.722023"
-      },
-      {
-        "id": 7,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:19.430088"
-      },
-      {
-        "id": 8,
-        "chatId": 3,
-        "senderName": "user3@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:39.622999"
-      },
-      {
-        "id": 9,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:08:57.749837"
-      },
-      {
-        "id": 10,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:19:44.174408"
-      },
-      {
-        "id": 11,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:24.215284"
-      },
-      {
-        "id": 12,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:24:29.457451"
-      },
-      {
-        "id": 13,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:08.742179"
-      },
-      {
-        "id": 14,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:17.659692"
-      },
-      {
-        "id": 15,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:21.688996"
-      },
-      {
-        "id": 16,
-        "chatId": 3,
-        "senderName": "support1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-03T21:29:27.078565"
-      }
-    ],
-    "status": "CLOSED",
-    "createDate": "2024-04-01T12:38:46.047585",
-    "updateDate": "2024-04-03T22:11:20.661897"
-  },
-  {
     "id": 9,
     "supportName": "",
     "userName": "user2@mail.com",
@@ -900,41 +433,7 @@ Response:
         "content": "content",
         "createDate": "2024-04-02T22:33:10.886923"
       },
-      {
-        "id": 2,
-        "chatId": 1,
-        "senderName": "user1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:12.848673"
-      },
-      {
-        "id": 3,
-        "chatId": 1,
-        "senderName": "user1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:13.60161"
-      },
-      {
-        "id": 4,
-        "chatId": 1,
-        "senderName": "user1@mail.com",
-        "content": "content",
-        "createDate": "2024-04-02T22:33:14.488072"
-      },
-      {
-        "id": 35,
-        "chatId": 1,
-        "senderName": "support1@mail.com",
-        "content": "орпарпарпа",
-        "createDate": "2024-04-04T17:40:11.473201"
-      },
-      {
-        "id": 36,
-        "chatId": 1,
-        "senderName": "support1@mail.com",
-        "content": "рпарпарпа",
-        "createDate": "2024-04-04T17:40:17.065939"
-      }
+      ...
     ],
     "status": "CLOSED",
     "createDate": "2024-04-01T12:38:37.788389",

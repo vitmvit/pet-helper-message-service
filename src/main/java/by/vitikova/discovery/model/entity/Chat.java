@@ -5,10 +5,7 @@ import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.listener.ChatListener;
 import by.vitikova.discovery.model.entity.parent.LogModel;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.envers.Audited;
 
 import java.util.List;
@@ -16,12 +13,13 @@ import java.util.List;
 /**
  * Сущность Chat, представляющая собой чат между пользователем и технической поддержкой.
  */
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
+@Getter
+@Setter
+@Entity
 @Builder
 @Audited
-@Entity
+@NoArgsConstructor
+@AllArgsConstructor
 @EntityListeners(ChatListener.class)
 public class Chat extends LogModel {
 

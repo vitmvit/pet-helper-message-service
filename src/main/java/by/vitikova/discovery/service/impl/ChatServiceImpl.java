@@ -219,6 +219,11 @@ public class ChatServiceImpl implements ChatService {
         return chatConverter.convert(chatRepository.save(chat));
     }
 
+    /**
+     * Удаление чатов по логину пользователя.
+     *
+     * @param login логин пользователя
+     */
     @Transactional
     @Override
     public void deleteChatsByUserName(String login) {
