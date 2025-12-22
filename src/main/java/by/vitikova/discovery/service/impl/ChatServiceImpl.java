@@ -1,250 +1,205 @@
 package by.vitikova.discovery.service.impl;
 
 import by.vitikova.discovery.ChatDto;
+import by.vitikova.discovery.client.UserClient;
 import by.vitikova.discovery.constant.ChatStatus;
 import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.converter.ChatConverter;
 import by.vitikova.discovery.create.ChatCreateDto;
+import by.vitikova.discovery.exception.EntityNotFoundException;
 import by.vitikova.discovery.exception.ResourceNotFoundException;
 import by.vitikova.discovery.model.entity.Chat;
 import by.vitikova.discovery.repository.ChatRepository;
 import by.vitikova.discovery.repository.MessageRepository;
 import by.vitikova.discovery.service.ChatService;
 import by.vitikova.discovery.util.StringUtils;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Реализация сервиса чата.
- *
- * Этот класс предоставляет методы для работы с чатами.
- * Он обеспечивает функциональность по поиску чатов, созданию нового чата и получению информации о чате по его идентификатору.
- */
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
 
-    private ChatRepository chatRepository;
-    private ChatConverter chatConverter;
-    private MessageRepository messageRepository;
-    private static final Logger logger = LoggerFactory.getLogger(ChatServiceImpl.class);
+    private final UserClient userClient;
+    private final ChatConverter chatConverter;
+    private final ChatRepository chatRepository;
+    private final MessageRepository messageRepository;
 
-    /**
-     * Находит чат по заданному идентификатору.
-     *
-     * @param id идентификатор чата
-     * @return объект типа ChatDto, содержащий информацию о чате
-     * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
-     */
-    @Cacheable(value = "chat", key = "#id")
     @Override
-    public ChatDto findById(Long id) {
-        logger.info("ChatService: find chat with id: " + id);
-        return chatConverter.convert(chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
+    public Mono<ChatDto> findById(Long id) {
+        log.info("ChatService: find chat with messages, id: {}", id);
+        return chatRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException()))
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, связанных с указанным именем поддержки.
-     *
-     * @param name имя поддержки
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsBySupportName(String name) {
-        logger.info("ChatService: find chats by support with name: " + name);
-        var list = chatRepository.findChatsBySupportName(name);
-        return list.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsBySupportName(String name) {
+        log.info("ChatService: find chats by support with name: {}", name);
+        return chatRepository.findBySupportName(name)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, у которых отсутствует имя поддержки.
-     *
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsByEmptySupportName() {
-        logger.info("ChatService: find chats by empty supportName");
-        var chatList = chatRepository.findAll();
-        return chatList.stream().filter(chat -> StringUtils.isEmpty(chat.getSupportName())).map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsByEmptySupportName() {
+        log.info("ChatService: find chats by empty supportName");
+        return chatRepository.findAll()
+                .filter(chat -> StringUtils.isEmpty(chat.getSupportName()))
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, связанных с указанным именем пользователя.
-     *
-     * @param name имя пользователя
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsByUserName(String name) {
-        logger.info("ChatService: find chats by user with name: " + name);
-        var list = chatRepository.findChatsByUserName(name);
-        return list.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsByUserName(String name) {
+        return chatRepository.findByUserName(name)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, связанных с указанным именем пользователя и поддержки.
-     *
-     * @param name имя пользователя
-     * @param supportName имя поддержки
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsByUserNameContains(String name,String supportName) {
-        logger.info("ChatService: find chats by user with name: " + name);
-        var list = chatRepository.findChatsByUserNameContainsAndSupportName(name, supportName);
-        return list.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsByUserNameContains(String name, String supportName) {
+        log.info("ChatService: find chats by user with name: {}", name);
+        return chatRepository.findByUserNameContainsAndSupportName(name, supportName)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, связанных с указанным статусом.
-     *
-     * @param status статус чата
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsByStatus(ChatStatus status) {
-        logger.info("ChatService: find chats by status: " + status.getStatus());
-        var chatList = chatRepository.findChatsByStatus(status);
-        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsByStatus(ChatStatus status) {
+        log.info("ChatService: find chats by status: {}", status.getStatus());
+        return chatRepository.findByStatus(status)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Метод для поиска чатов по типу.
-     *
-     * @param type Тип чата, по которому необходимо произвести поиск.
-     * @return Список чатов типа {@code ChatDto}, соответствующих указанному типу.
-     */
     @Override
-    public List<ChatDto> findChatsByType(ChatType type) {
-        logger.info("ChatService: find chats by type: " + type.getType());
-        var chatList = chatRepository.findChatsByType(type);
-        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
-
+    public Flux<ChatDto> findChatsByType(ChatType type) {
+        log.info("ChatService: find chats by type: {}", type.getType());
+        return chatRepository.findByType(type)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Метод для поиска чатов по типу и статусу.
-     *
-     * @param type   Тип чата, по которому необходимо произвести поиск.
-     * @param status Статус чата, по которому необходимо произвести поиск.
-     * @return Список чатов типа {@code ChatDto}, соответствующих указанному типу и статусу.
-     */
     @Override
-    public List<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status) {
-        logger.info("ChatService: find chats by type: " + type.getType() + ", status: " + status.getStatus());
-        var chatList = chatRepository.findChatsByTypeAndStatus(type, status);
-        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status) {
+        log.info("ChatService: find chats by type: {}, status: {}", type.getType(), status.getStatus());
+        return chatRepository.findByTypeAndStatus(type, status)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит список чатов, связанных с указанными логинами поддержки и пользователя.
-     *
-     * @param supportName имя поддержки
-     * @param userName    имя пользователя
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findChatsBySupportNameAndUserName(String supportName, String userName) {
-        logger.info("ChatService: find chats by user and support names");
-        var list = chatRepository.findChatsBySupportNameAndUserName(supportName, userName);
-        return list.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findChatsBySupportNameAndUserName(String supportName, String userName) {
+        log.info("ChatService: find chats by user and support names");
+        return chatRepository.findBySupportNameAndUserName(supportName, userName)
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Находит все чаты.
-     *
-     * @return список объектов типа ChatDto, содержащих информацию о чатах
-     */
     @Override
-    public List<ChatDto> findAll() {
-        logger.info("ChatService: find all chats");
-        var chatList = chatRepository.findAll();
-        return chatList.stream().map(chatConverter::convert).collect(Collectors.toList());
+    public Flux<ChatDto> findAll() {
+        log.info("ChatService: find all chats");
+        return chatRepository.findAll()
+                .flatMap(this::enrichChatWithMessages)
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Создает новый чат.
-     *
-     * @param dto данные для создания чата
-     * @return объект типа ChatDto, содержащий информацию о созданном чате
-     */
-    @CacheEvict(value = "chats", key = "#dto.userName")
+    @Override
+    public Mono<ChatDto> create(ChatCreateDto dto) {
+        log.info("ChatService: create chat");
+        return validateUsersExistence(dto.getUserName(), dto.getSupportName())
+                .then(Mono.just(dto)
+                        .map(chatConverter::convert)
+                        .flatMap(chatRepository::save)
+                        .map(chatConverter::convert));
+    }
+
+    @Override
     @Transactional
-    @Override
-    public ChatDto create(ChatCreateDto dto) {
-        logger.info("ChatService: create chat");
-        var chat = chatConverter.convert(dto);
-        return chatConverter.convert(chatRepository.save(chat));
+    public Mono<ChatDto> updateStatus(Long id, ChatStatus status) {
+        log.info("ChatService: update status by chatId: {}", id);
+        return chatRepository.findById(id)
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException()))
+                .flatMap(this::enrichChatWithMessages)
+                .flatMap(chat -> {
+                    chat.setStatus(status);
+                    return chatRepository.save(chat);
+                })
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Обновляет статус чата по его идентификатору.
-     *
-     * @param id идентификатор чата
-     * @param status новый статус чата
-     * @return объект типа ChatDto, содержащий информацию о чате с обновленным статусом
-     * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
-     */
-    @Transactional
     @Override
-    public ChatDto updateStatus(Long id, ChatStatus status) {
-        logger.info("ChatService: update status by chatId: " + id);
-        var chat = chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-        chat.setStatus(status);
-        return chatConverter.convert(chatRepository.save(chat));
+    @Transactional
+    public Mono<ChatDto> updateSupport(Long id, String login) {
+        return userClient.existsByLogin(login)
+                .defaultIfEmpty(false)
+                .flatMap(exists -> {
+                    if (Boolean.FALSE.equals(exists)) {
+                        return Mono.error(new EntityNotFoundException("Support user not found: " + login));
+                    }
+
+                    return chatRepository.findById(id)
+                            .switchIfEmpty(Mono.error(new ResourceNotFoundException()))
+                            .flatMap(this::enrichChatWithMessages)
+                            .flatMap(chat -> {
+                                chat.setSupportName(login);
+                                chat.setStatus(ChatStatus.OPEN);
+                                return chatRepository.save(chat);
+                            });
+                })
+                .map(chatConverter::convert);
     }
 
-    /**
-     * Обновляет имя поддержки чата по его идентификатору.
-     *
-     * @param id    идентификатор чата
-     * @param login логин поддержки
-     * @return объект типа ChatDto, содержащий информацию о чате с обновленным именем поддержки
-     * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
-     */
-    @Transactional
     @Override
-    public ChatDto updateSupport(Long id, String login) {
-        logger.info("ChatService: update support by chatId: " + id);
-        var chat = chatRepository.findById(id).orElseThrow(ResourceNotFoundException::new);
-        chat.setSupportName(login);
-        return chatConverter.convert(chatRepository.save(chat));
+    @Transactional
+    public Mono<Void> deleteChatsByUserName(String login) {
+        log.info("ChatService: mass deleting chats for user: {}", login);
+        return chatRepository.findByUserName(login)
+                .map(Chat::getId)
+                .collectList()
+                .flatMap(ids -> {
+                    if (ids.isEmpty()) {
+                        return Mono.empty();
+                    }
+                    return messageRepository.deleteAllByChatIdIn(ids)
+                            .then(chatRepository.deleteAllByUserName(login));
+                });
     }
 
-    /**
-     * Удаление чатов по логину пользователя.
-     *
-     * @param login логин пользователя
-     */
-    @Transactional
     @Override
-    public void deleteChatsByUserName(String login) {
-        var chatList = chatRepository.findChatsByUserName(login);
-        for (Chat item : chatList) {
-            delete(item.getId());
-        }
+    @Transactional
+    public Mono<Void> delete(Long id) {
+        log.info("ChatService: delete chat with id: {}", id);
+        return messageRepository.deleteAllByChatId(id).then(chatRepository.deleteById(id));
     }
 
-    /**
-     * Удаляет чат по его идентификатору.
-     *
-     * @param id идентификатор чата
-     * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
-     */
-    @CacheEvict(value = "chats", allEntries = true)
-    @Transactional
-    @Override
-    public void delete(Long id) {
-        logger.info("ChatService: dalete chat with id: " + id);
-        messageRepository.deleteAllByChatId(id);
-        chatRepository.deleteById(id);
+    private Mono<Void> validateUsersExistence(String userName, String supportName) {
+        Mono<Void> userCheck = userClient.existsByLogin(userName)
+                .flatMap(exists -> exists ? Mono.empty() :
+                        Mono.error(new EntityNotFoundException("User not found: " + userName)))
+                .then();
+
+        Mono<Void> supportCheck = (supportName != null)
+                ? userClient.existsByLogin(supportName)
+                .flatMap(exists -> exists ? Mono.empty() :
+                        Mono.error(new EntityNotFoundException("Support not found: " + supportName)))
+                .then()
+                : Mono.empty();
+
+        return Mono.when(userCheck, supportCheck);
+    }
+
+    private Mono<Chat> enrichChatWithMessages(Chat chat) {
+        return messageRepository.findByChatId(chat.getId())
+                .collectList()
+                .doOnNext(chat::setMessageList)
+                .thenReturn(chat);
     }
 }

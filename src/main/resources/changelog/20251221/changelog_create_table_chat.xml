@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
+
+    <changeSet id="202512212349" author="vitikova" dbms="postgresql">
+        <sql>
+            DROP TABLE IF EXISTS "chat";
+            DROP SEQUENCE IF EXISTS chat_id_seq;
+            CREATE SEQUENCE chat_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 9223372036854775807 START 34 CACHE 1;
+
+            CREATE TABLE "public"."chat"
+            (
+            "create_date" timestamp(6),
+            "id" bigint DEFAULT nextval('chat_id_seq') NOT NULL,
+            "update_date" timestamp(6),
+            "status" character varying(255),
+            "support_name" character varying(255),
+            "user_name" character varying(255),
+            "type" character varying(255),
+            CONSTRAINT "chat_pkey" PRIMARY KEY ("id")
+            ) WITH (oids = false);
+
+            ALTER TABLE ONLY "public"."message" ADD CONSTRAINT "fk_chat_message_id_to_id" FOREIGN KEY (chat_id) REFERENCES chat(id) NOT DEFERRABLE;
+        </sql>
+    </changeSet>
+</databaseChangeLog>

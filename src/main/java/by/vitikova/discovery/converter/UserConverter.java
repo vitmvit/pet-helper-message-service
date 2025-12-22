@@ -8,11 +8,5 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE)
 public interface UserConverter {
 
-    /**
-     * Преобразование объекта UserDto в объект User
-     *
-     * @param source исходный комментарий типа UserDto
-     * @return преобразованный комментарий типа User
-     */
     User convert(UserDto source);
 }

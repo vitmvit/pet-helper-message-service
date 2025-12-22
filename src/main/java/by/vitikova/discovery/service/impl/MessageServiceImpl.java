@@ -1,102 +1,74 @@
 package by.vitikova.discovery.service.impl;
 
 import by.vitikova.discovery.MessageDto;
+import by.vitikova.discovery.client.UserClient;
 import by.vitikova.discovery.converter.MessageConverter;
 import by.vitikova.discovery.create.MessageCreateDto;
 import by.vitikova.discovery.exception.EntityNotFoundException;
 import by.vitikova.discovery.exception.ResourceNotFoundException;
-import by.vitikova.discovery.feign.ImageClient;
-import by.vitikova.discovery.model.entity.Chat;
 import by.vitikova.discovery.repository.ChatRepository;
 import by.vitikova.discovery.repository.MessageRepository;
 import by.vitikova.discovery.service.MessageService;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.Cacheable;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-/**
- * Реализация сервиса сообщений.
- * <p>
- * Этот класс предоставляет методы для работы с сообщениями в чатах.
- * Он обеспечивает функциональность по поиску сообщений, созданию нового сообщения,
- * получению информации о сообщении по его идентификатору и удалению сообщения по его идентификатору.
- */
+@Slf4j
 @Service
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class MessageServiceImpl implements MessageService {
 
-    private static final Logger logger = LoggerFactory.getLogger(MessageServiceImpl.class);
-    private MessageRepository messageRepository;
-    private ChatRepository chatRepository;
-    private ImageClient imageClient;
-    private MessageConverter messageConverter;
+    private final UserClient userClient;
+    private final MessageConverter messageConverter;
+    private final MessageRepository messageRepository;
+    private final ChatRepository chatRepository;
 
-    /**
-     * Находит сообщение по заданному идентификатору.
-     *
-     * @param id идентификатор сообщения
-     * @return объект типа MessageDto, содержащий информацию о сообщении
-     * @throws ResourceNotFoundException если сообщение с заданным идентификатором не найдено
-     */
-    @Cacheable(value = "message", key = "#id")
     @Override
-    public MessageDto findById(Long id) {
-        logger.info("MessageService: find message with id: " + id);
-        return messageConverter.convert(messageRepository.findById(id).orElseThrow(ResourceNotFoundException::new));
+    public Flux<MessageDto> findAllByChatId(Long id) {
+        return messageRepository.findByChatId(id)
+                .map(messageConverter::convert);
     }
 
-    /**
-     * Находит список сообщений по идентификатору чата.
-     *
-     * @param id идентификатор чата
-     * @return список объектов типа MessageDto, содержащих информацию о сообщениях
-     */
     @Override
-    public List<MessageDto> findAllByChatId(Long id) {
-        logger.info("MessageService: find messages with chatId: " + id);
-        var messageList = messageRepository.findByChatId(id);
-        return messageList.stream().map(messageConverter::convert).collect(Collectors.toList());
+    public Mono<MessageDto> create(MessageCreateDto dto) {
+        log.info("MessageService: create message in chat with id: {}", dto.getChatId());
+
+        return validateSenderExistence(dto.getSenderName())
+                .then(chatRepository.findById(dto.getChatId())
+                        .switchIfEmpty(Mono.error(new ResourceNotFoundException()))
+                        .flatMap(chat -> {
+                            var message = messageConverter.convert(dto);
+                            message.setChatId(chat.getId());
+                            return messageRepository.save(message);
+                        })
+                        .map(messageConverter::convert));
     }
 
-    /**
-     * Создает новое сообщение в указанном чате.
-     *
-     * @param dto данные для создания сообщения
-     * @return объект типа MessageDto, содержащий информацию о созданном сообщении
-     * @throws ResourceNotFoundException если чат с заданным идентификатором не найден
-     */
-    @CacheEvict(value = "messages", key = "#dto.chatId")
+    @Override
     @Transactional
-    @Override
-    public MessageDto create(MessageCreateDto dto) {
-        logger.info("MessageService: create message in chat wih id: " + dto.getChatId());
-        Chat chat = chatRepository.findById(dto.getChatId()).orElseThrow(ResourceNotFoundException::new);
-        var message = messageConverter.convert(dto);
-        message.setChat(chat);
-        return messageConverter.convert(messageRepository.save(message));
+    public Mono<Void> delete(Long id) {
+        return messageRepository.findById(id)
+                .switchIfEmpty(Mono.error(new EntityNotFoundException()))
+                .flatMap(message -> {
+                    log.info("MessageService: delete message with id: {}", id);
+                    return messageRepository.deleteById(id);
+                });
+
+//        if (message.getUuidPhoto() != null) {
+//            //todo тут нормальная сага должна быть
+//            imageClient.removeImage(message.getUuidPhoto());
+//        }
     }
 
-    /**
-     * Удаляет сообщение по заданному идентификатору.
-     *
-     * @param id идентификатор сообщения
-     */
-    @CacheEvict(value = "messages", allEntries = true)
-    @Transactional
-    @Override
-    public void delete(Long id) {
-        var message = messageRepository.findById(id).orElseThrow(EntityNotFoundException::new);
-        if (message.getUuidPhoto() != null) {
-            imageClient.removeImage(message.getUuidPhoto());
-        }
-        logger.info("MessageService: delete message with id: " + id);
-        messageRepository.deleteById(id);
+    private Mono<Void> validateSenderExistence(String senderName) {
+        return userClient.existsByLogin(senderName)
+                .defaultIfEmpty(false)
+                .flatMap(exists -> Boolean.TRUE.equals(exists)
+                        ? Mono.empty()
+                        : Mono.error(new EntityNotFoundException("Sender not found: " + senderName)))
+                .then();
     }
 }

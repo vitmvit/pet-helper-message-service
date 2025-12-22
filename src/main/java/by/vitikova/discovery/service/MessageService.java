@@ -2,16 +2,16 @@ package by.vitikova.discovery.service;
 
 import by.vitikova.discovery.MessageDto;
 import by.vitikova.discovery.create.MessageCreateDto;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface MessageService {
 
-    MessageDto findById(Long id);
+    Flux<MessageDto> findAllByChatId(Long id);
 
-    List<MessageDto> findAllByChatId(Long id);
+    Mono<MessageDto> create(MessageCreateDto dto);
 
-    MessageDto create(MessageCreateDto dto);
-
-    void delete(Long id);
+    Mono<Void> delete(Long id);
 }

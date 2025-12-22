@@ -1,149 +1,91 @@
 package by.vitikova.discovery.controller;
 
 import by.vitikova.discovery.ChatDto;
-import by.vitikova.discovery.MessageDto;
 import by.vitikova.discovery.constant.ChatStatus;
 import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.create.ChatCreateDto;
-import by.vitikova.discovery.create.MessageCreateDto;
-import by.vitikova.discovery.service.ChatService;
-import by.vitikova.discovery.service.MessageService;
-import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
-import java.util.List;
+@Tag(name = "Chats", description = "API для управления чатами поддержки")
+public interface ChatController {
 
-@RestController
-@AllArgsConstructor
-@RequestMapping("/api/v1/chats")
-public class ChatController {
-    private ChatService chatService;
-    private MessageService messageService;
-
+    @Operation(summary = "Найти чат по ID")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Чат найден"),
+            @ApiResponse(responseCode = "404", description = "Чат не найден")
+    })
     @GetMapping("/{id}")
-    public ResponseEntity<ChatDto> findChatById(@PathVariable("id") Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findById(id));
-    }
+    Mono<ResponseEntity<ChatDto>> findChatById(Long id);
 
+    @Operation(summary = "Список чатов по имени сотрудника поддержки")
     @GetMapping("supportName/{name}")
-    public ResponseEntity<List<ChatDto>> findChatsBySupportName(@PathVariable("name") String name) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsBySupportName(name));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsBySupportName(String name);
 
+    @Operation(summary = "Найти свободные чаты", description = "Возвращает чаты, у которых не назначен сотрудник поддержки")
     @GetMapping("free")
-    public ResponseEntity<List<ChatDto>> findChatsByEmptySupportName() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByEmptySupportName());
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByEmptySupportName();
 
+    @Operation(summary = "Фильтр чатов по статусу")
     @GetMapping("status/{status}")
-    public ResponseEntity<List<ChatDto>> findChatsByStatus(@PathVariable("status") ChatStatus status) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByStatus(status));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByStatus(ChatStatus status);
 
+    @Operation(summary = "Фильтр чатов по типу")
     @GetMapping("type/{type}")
-    public ResponseEntity<List<ChatDto>> findChatsByType(@PathVariable("type") ChatType type) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByType(type));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByType(ChatType type);
 
+    @Operation(summary = "Поиск по типу и статусу одновременно")
     @GetMapping("status/{type}/{status}")
-    public ResponseEntity<List<ChatDto>> findChatsByTypeAndStatus(@PathVariable("type") ChatType type, @PathVariable("status") ChatStatus status) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByTypeAndStatus(type, status));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByTypeAndStatus(ChatType type, ChatStatus status);
 
+    @Operation(summary = "Список чатов конкретного пользователя")
     @GetMapping("userName/{name}")
-    public ResponseEntity<List<ChatDto>> findChatsByUserName(@PathVariable("name") String name) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByUserName(name));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByUserName(String name);
 
+    @Operation(summary = "Список чатов по специалисту поддержки")
     @GetMapping("userName/like/{name}/{supportName}")
-    public ResponseEntity<List<ChatDto>> findChatsByUserNameContains(@PathVariable("name") String name, @PathVariable("supportName") String supportName) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsByUserNameContains(name, supportName));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsByUserNameContains(String name, String supportName);
 
+    @Operation(summary = "Поиск чатов по части имени пользователя и сотруднику")
     @GetMapping("/{supportName}/{userName}")
-    public ResponseEntity<List<ChatDto>> findChatsBySupportNameAndUserName(@PathVariable("supportName") String supportName, @PathVariable("userName") String userName) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findChatsBySupportNameAndUserName(supportName, userName));
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findChatsBySupportNameAndUserName(String supportName, String userName);
 
-    @GetMapping("/messages/{id}")
-    public ResponseEntity<List<MessageDto>> findAllMessageByChatId(@PathVariable("id") Long id) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(messageService.findAllByChatId(id));
-    }
-
+    @Operation(summary = "Получить все чаты системы")
     @GetMapping
-    public ResponseEntity<List<ChatDto>> findAllChats() {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.findAll());
-    }
+    Mono<ResponseEntity<Flux<ChatDto>>> findAllChats();
 
+    @Operation(summary = "Создать новый чат", description = "Инициализирует новый чат. По умолчанию статус устанавливается через Listener (FREE)")
+    @ApiResponse(responseCode = "201", description = "Чат создан")
     @PostMapping
-    public ResponseEntity<ChatDto> createChat(@RequestBody ChatCreateDto chatCreateDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(chatService.create(chatCreateDto));
-    }
+    Mono<ResponseEntity<ChatDto>> createChat(ChatCreateDto chatCreateDto);
 
+    @Operation(summary = "Обновить статус чата")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Статус обновлен"),
+            @ApiResponse(responseCode = "404", description = "Чат не найден")
+    })
     @PostMapping("/status/{id}/{status}")
-    public ResponseEntity<ChatDto> updateStatusChat(@PathVariable("id") Long id,
-                                                    @PathVariable("status") ChatStatus status) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.updateStatus(id, status));
-    }
+    Mono<ResponseEntity<ChatDto>> updateStatusChat(Long id, ChatStatus status);
 
+    @Operation(summary = "Назначить сотрудника поддержки на чат")
     @PostMapping("/support/{id}/{login}")
-    public ResponseEntity<ChatDto> updateSupportChat(@PathVariable("id") Long id,
-                                                     @PathVariable("login") String login) {
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(chatService.updateSupport(id, login));
-    }
+    Mono<ResponseEntity<ChatDto>> updateSupportChat(Long id, String login);
 
-    @PostMapping("/messages")
-    public ResponseEntity<MessageDto> createMessage(@RequestBody MessageCreateDto messageCreateDto) {
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(messageService.create(messageCreateDto));
-    }
-
+    @Operation(summary = "Массовое удаление чатов пользователя", description = "Удаляет все чаты и сообщения, связанные с логином пользователя")
+    @ApiResponse(responseCode = "204", description = "Чаты удалены")
     @DeleteMapping("/users/{login}")
-    public ResponseEntity<Void> deleteChatsByUserName(@PathVariable("login") String login) {
-        chatService.deleteChatsByUserName(login);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    Mono<ResponseEntity<Void>> deleteChatsByUserName(String login);
 
+    @Operation(summary = "Удалить чат по ID", description = "Удаляет чат и все его сообщения")
+    @ApiResponse(responseCode = "204", description = "Чат удален")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteChat(@PathVariable("id") Long id) {
-        chatService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
-
-    @DeleteMapping("/messages/{id}")
-    public ResponseEntity<Void> deleteMessage(@PathVariable("id") Long id) {
-        messageService.delete(id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    }
+    Mono<ResponseEntity<Void>> deleteChat(Long id);
 }

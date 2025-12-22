@@ -1,13 +1,18 @@
 package by.vitikova.discovery.repository;
 
 import by.vitikova.discovery.model.entity.Message;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-public interface MessageRepository extends JpaRepository<Message, Long> {
+public interface MessageRepository extends
+        ReactiveCrudRepository<Message, Long> {
 
-    List<Message> findByChatId(Long id);
+    Flux<Message> findByChatId(Long id);
 
-    void deleteAllByChatId(Long id);
+    Mono<Void> deleteAllByChatId(Long id);
+
+    Mono<Void> deleteAllByChatIdIn(List<Long> ids);
 }

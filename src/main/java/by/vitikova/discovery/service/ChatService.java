@@ -4,38 +4,40 @@ import by.vitikova.discovery.ChatDto;
 import by.vitikova.discovery.constant.ChatStatus;
 import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.create.ChatCreateDto;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 public interface ChatService {
 
-    ChatDto findById(Long id);
+    Mono<ChatDto> findById(Long id);
 
-    List<ChatDto> findChatsBySupportName(String name);
+    Flux<ChatDto> findChatsBySupportName(String name);
 
-    List<ChatDto> findChatsByEmptySupportName();
+    Flux<ChatDto> findChatsByEmptySupportName();
 
-    List<ChatDto> findChatsByUserName(String name);
+    Flux<ChatDto> findChatsByUserName(String name);
 
-    List<ChatDto> findChatsByUserNameContains(String name, String supportName);
+    Flux<ChatDto> findChatsByUserNameContains(String name, String supportName);
 
-    List<ChatDto> findChatsByStatus(ChatStatus status);
+    Flux<ChatDto> findChatsByStatus(ChatStatus status);
 
-    List<ChatDto> findChatsByType(ChatType type);
+    Flux<ChatDto> findChatsByType(ChatType type);
 
-    List<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status);
+    Flux<ChatDto> findChatsByTypeAndStatus(ChatType type, ChatStatus status);
 
-    List<ChatDto> findChatsBySupportNameAndUserName(String supportName, String userName);
+    Flux<ChatDto> findChatsBySupportNameAndUserName(String supportName, String userName);
 
-    List<ChatDto> findAll();
+    Flux<ChatDto> findAll();
 
-    ChatDto create(ChatCreateDto dto);
+    Mono<ChatDto> create(ChatCreateDto dto);
 
-    ChatDto updateStatus(Long id, ChatStatus status);
+    Mono<ChatDto> updateStatus(Long id, ChatStatus status);
 
-    ChatDto updateSupport(Long id, String login);
+    Mono<ChatDto> updateSupport(Long id, String login);
 
-    void deleteChatsByUserName(String login);
+    Mono<Void> deleteChatsByUserName(String login);
 
-    void delete(Long id);
+    Mono<Void> delete(Long id);
 }

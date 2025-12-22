@@ -3,28 +3,31 @@ package by.vitikova.discovery.repository;
 import by.vitikova.discovery.constant.ChatStatus;
 import by.vitikova.discovery.constant.ChatType;
 import by.vitikova.discovery.model.entity.Chat;
-import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.repository.reactive.ReactiveCrudRepository;
 import org.springframework.stereotype.Repository;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Repository
-public interface ChatRepository extends JpaRepository<Chat, Long> {
+public interface ChatRepository extends ReactiveCrudRepository<Chat, Long> {
 
-    List<Chat> findChatsBySupportName(String name);
+    Flux<Chat> findBySupportName(String name);
 
-    List<Chat> findChatsByUserName(String name);
+    Flux<Chat> findByUserName(String name);
 
-    List<Chat> findChatsByUserNameContainsAndSupportName(String name, String supportName);
+    Flux<Chat> findByUserNameContainsAndSupportName(String name, String supportName);
 
-    List<Chat> findChatsByStatus(ChatStatus status);
+    Flux<Chat> findByStatus(ChatStatus status);
 
-    List<Chat> findChatsByType(ChatType type);
+    Flux<Chat> findByType(ChatType type);
 
-    List<Chat> findChatsByTypeAndStatus(ChatType type, ChatStatus status);
+    Flux<Chat> findByTypeAndStatus(ChatType type, ChatStatus status);
 
-    List<Chat> findChatsByStatusAndUpdateDateBefore(ChatStatus status, LocalDateTime dateTime);
+    Flux<Chat> findByStatusAndUpdateDateBefore(ChatStatus status, LocalDateTime dateTime);
 
-    List<Chat> findChatsBySupportNameAndUserName(String supportName, String userName);
+    Flux<Chat> findBySupportNameAndUserName(String supportName, String userName);
+
+    Mono<Void> deleteAllByUserName(String userName);
 }

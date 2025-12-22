@@ -1,98 +1,105 @@
 package by.vitikova.discovery.filter;
 
+import by.vitikova.discovery.client.AuthClient;
 import by.vitikova.discovery.converter.UserConverter;
 import by.vitikova.discovery.exception.InvalidJwtException;
-import by.vitikova.discovery.feign.AuthClient;
 import by.vitikova.discovery.model.entity.TokenPayload;
-import by.vitikova.discovery.model.entity.User;
 import by.vitikova.discovery.service.UserService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
-import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.server.ServerWebExchange;
+import org.springframework.web.server.WebFilter;
+import org.springframework.web.server.WebFilterChain;
+import reactor.core.publisher.Mono;
 
-import java.io.IOException;
 import java.util.Base64;
 
-import static by.vitikova.discovery.constant.Constant.INVALID_TOKEN_ERROR;
-
+@Slf4j
 @Component
-@AllArgsConstructor
-public class SecurityFilter extends OncePerRequestFilter {
+@RequiredArgsConstructor
+public class SecurityFilter implements WebFilter {
 
-    private static final Logger logger = LoggerFactory.getLogger(SecurityFilter.class);
-    private AuthClient authClient;
-    private UserService userService;
-    private UserConverter userConverter;
-    private ObjectMapper objectMapper;
+    private final AuthClient authClient;
+    private final UserService userService;
+    private final UserConverter userConverter;
+    private final ObjectMapper objectMapper;
 
-    /**
-     * Метод, выполняющий перехват запросов и проверку токена
-     *
-     * @param request     объект HttpServletRequest, представляющий HTTP запрос
-     * @param response    объект HttpServletResponse, представляющий HTTP ответ
-     * @param filterChain объект FilterChain, представляющий цепочку фильтров
-     * @throws ServletException если произошла ошибка в сервлете
-     * @throws IOException      если произошла ошибка ввода-вывода
-     */
+//    @Override
+//    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
+//        try {
+//            // Проверяем, является ли запрос запросом на Swagger UI
+//            if (request.getRequestURI().contains("/swagger-ui") || request.getRequestURI().contains("/api/doc") || request.getRequestURI().contains("/v3/api-docs")) {
+//                // Если да, пропускаем фильтр и передаем запрос дальше
+//                filterChain.doFilter(request, response);
+//                return;
+//            }
+//            var token = this.recoverToken(request);
+//            var login = getUsername(token);
+//            User user = userConverter.convert(userService.findByLogin(login));
+//            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
+//            SecurityContextHolder.getContext().setAuthentication(authentication);
+//
+//            if (Boolean.FALSE.equals(authClient.check(token).getBody())) {
+//                throw new InvalidJwtException(INVALID_TOKEN_ERROR);
+//            }
+//            filterChain.doFilter(request, response);
+//        } catch (Exception e) {
+//            throw new InvalidJwtException(INVALID_TOKEN_ERROR);
+//        }
+//    }
+
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) {
-        try {
-            // Проверяем, является ли запрос запросом на Swagger UI
-            if (request.getRequestURI().contains("/swagger-ui") || request.getRequestURI().contains("/api/doc") || request.getRequestURI().contains("/v3/api-docs")) {
-                // Если да, пропускаем фильтр и передаем запрос дальше
-                filterChain.doFilter(request, response);
-                return;
-            }
-            var token = this.recoverToken(request);
-            var login = getUsername(token);
-            User user = userConverter.convert(userService.findByLogin(login));
-            var authentication = new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities());
-            SecurityContextHolder.getContext().setAuthentication(authentication);
+    public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
+        String path = exchange.getRequest().getURI().getPath();
 
-            if (Boolean.FALSE.equals(authClient.check(token).getBody())) {
-                throw new InvalidJwtException(INVALID_TOKEN_ERROR);
-            }
-            filterChain.doFilter(request, response);
+        // Пропускаем Swagger
+        if (path.contains("/swagger-ui") || path.contains("/api/doc") || path.contains("/v3/api-docs")) {
+            return chain.filter(exchange);
+        }
+
+        String token = recoverToken(exchange);
+        if (token == null) {
+            return chain.filter(exchange);
+        }
+
+        return Mono.just(token)
+                .flatMap(t -> authClient.check("Bearer " + t)
+                        .defaultIfEmpty(false))
+                .flatMap(checkResponse -> {
+                    if (Boolean.FALSE.equals(checkResponse)) {
+                        return Mono.error(new InvalidJwtException("Invalid token"));
+                    }
+                    log.info("CHECK: " + checkResponse);
+                    String login = getUsername(token);
+                    return userService.findByLogin(login)
+                            .map(userConverter::convert)
+                            .map(user -> new UsernamePasswordAuthenticationToken(user, null, user.getAuthorities()))
+                            .flatMap(auth -> chain.filter(exchange).contextWrite(ReactiveSecurityContextHolder.withAuthentication(auth)));
+                })
+                .onErrorResume(e -> Mono.error(new InvalidJwtException("Auth failed: " + e.getMessage())));
+    }
+
+    private String getUsername(String token) {
+        try {
+            String[] parts = token.split("\\.");
+            String payload = new String(Base64.getUrlDecoder().decode(parts[1]));
+            TokenPayload tokenPayload = objectMapper.readValue(payload, TokenPayload.class);
+            return tokenPayload.getUsername();
         } catch (Exception e) {
-            throw new InvalidJwtException(INVALID_TOKEN_ERROR);
+            throw new InvalidJwtException("Token parsing error");
         }
     }
 
-    /**
-     * Получает имя пользователя из токена.
-     *
-     * @param token строка, представляющая JWT токен
-     * @return имя пользователя из токена
-     * @throws JsonProcessingException при возникновении ошибки при разборе JSON
-     */
-    private String getUsername(String token) throws JsonProcessingException {
-        String[] chinks = token.split("\\.");
-        Base64.Decoder decoder = Base64.getUrlDecoder();
-        String payload = new String(decoder.decode(chinks[1]));
-        TokenPayload tokenPayload = objectMapper.readValue(payload, TokenPayload.class);
-        return tokenPayload.getUsername();
-    }
-
-    /**
-     * Метод для извлечения токена из HTTP запроса
-     *
-     * @param request объект HttpServletRequest, представляющий HTTP запрос
-     * @return строковое значение токена
-     */
-    private String recoverToken(HttpServletRequest request) {
-        var authHeader = request.getHeader("Authorization");
-        if (authHeader == null)
-            return null;
-        return authHeader.replace("Bearer ", "");
+    private String recoverToken(ServerWebExchange exchange) {
+        String authHeader = exchange.getRequest().getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 }
