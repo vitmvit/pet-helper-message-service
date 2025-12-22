@@ -7,8 +7,6 @@ import by.vitikova.discovery.create.ChatCreateDto;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.List;
-
 public interface ChatService {
 
     Mono<ChatDto> findById(Long id);

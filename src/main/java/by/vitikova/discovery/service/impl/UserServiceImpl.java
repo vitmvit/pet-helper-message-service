@@ -1,10 +1,9 @@
 package by.vitikova.discovery.service.impl;
 
 import by.vitikova.discovery.UserDto;
-import by.vitikova.discovery.exception.EntityNotFoundException;
 import by.vitikova.discovery.client.UserClient;
+import by.vitikova.discovery.exception.EntityNotFoundException;
 import by.vitikova.discovery.service.UserService;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

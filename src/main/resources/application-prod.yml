@@ -33,9 +33,12 @@ spring:
         format_sql: true
 
 springdoc:
+  api-docs:
+    enabled: true
+    path: /v3/api-docs
   swagger-ui:
     enabled: true
-    path: /api/doc/
+    path: /api/doc/swagger-ui.html
 
 eureka:
   client:
